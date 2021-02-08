@@ -1,7 +1,4 @@
 #include "pet.h"
-#include <iostream>
-#include <vector>
-#include <iomanip>
 
 int main(void)
 {
@@ -14,5 +11,5 @@ int main(void)
 		Pet{"Giuseppe", 21, MONKEY}
 	};
 
-	for(Pet p : pets) std::cout << p.to_string() << std::endl;
+	for(Pet p : pets) std::cout << p.output() << std::endl;
 }
