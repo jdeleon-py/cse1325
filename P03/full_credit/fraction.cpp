@@ -85,7 +85,16 @@ int gcd(int a, int b)
 
 void Fraction::reduce()
 {
+	int comm_den;
+
 	if(_denominator < 0)
-	{}
+	{
+		_numerator = -_numerator;
+		_denominator = -_denominator;
+	}
+
+	comm_den = gcd(_numerator, _denominator);
+	_numerator = _numerator / comm_den;
+	_denominator = _denominator / comm_den;
 }
 
