@@ -15,7 +15,7 @@ public:
 	Fraction operator*(Fraction& rhs);
 	Fraction operator/(Fraction& rhs);
 
-	friend std::ostream& operator<<(std::ostream& ost, Fraction& m);
+	friend std::ostream& operator<<(std::ostream& ost, const Fraction& m);
 	friend std::istream& operator>>(std::istream& ist, Fraction& m);
 	friend bool operator!=(const Fraction& lhs, const Fraction& rhs);
 private:
@@ -24,11 +24,11 @@ private:
 	void reduce();
 };
 
-std::ostream& operator<<(std::ostream& ost, Fraction& m);
+//std::ostream& operator<<(std::ostream& ost, const Fraction& m);
 
-std::istream& operator>>(std::istream& ist, Fraction& m);
+//std::istream& operator>>(std::istream& ist, Fraction& m);
 
-bool operator!=(const Fraction& lhs, const Fraction& rhs);
+//bool operator!=(const Fraction& lhs, const Fraction& rhs);
 
 int gcd(int a, int b);
 

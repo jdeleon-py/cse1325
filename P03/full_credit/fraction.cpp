@@ -1,11 +1,21 @@
 #include "fraction.h"
 
-Fraction::Fraction(int num, int den) : _numerator{num = 0}, _denominator{den = 1} {}
+Fraction::Fraction(int num, int den) : _numerator{num = 0}, _denominator{den = 1}
+{
+	if(_denominator == 0)
+	{
+		std::cerr << "Denominator is zero!" << std::endl;
+	}
+	else
+	{
+		reduce();
+	}
+}
 
 Fraction Fraction::operator-()
 {
 	Fraction frac;
-	frac._numerator = -1 * _numerator;
+	frac._numerator = -_numerator;
 	frac._denominator = _denominator;
 	return frac;
 }
@@ -42,20 +52,33 @@ Fraction Fraction::operator/(Fraction& rhs)
 	return quotient;
 }
 
-std::ostream& operator<<(std::ostream& ost, Fraction& m)
+std::ostream& operator<<(std::ostream& ost, const Fraction& m)
 {
-	ost << m._numerator << "/" << m._denominator;
-	//ost << std::to_string(m._numerator) + "/" + std::to_string(m._denominator);
+	ost << m._numerator;
+	if(m._denominator != 1)
+	{
+		ost << '/' << m._denominator;
+	}
 	return ost;
 }
 
 std::istream& operator>>(std::istream& ist, Fraction& m)
 {
-	std::string s;
-	ist >> s;
-	//ist >> std::to_string(m._numerator);
-	//ist >> "/";
-	//ist >> std::to_string(m._denominator);
+	int n, d;
+	char c;
+	ist >> n >> c >> d;
+
+	if(ist && c == '/')
+	{
+		m._numerator = n;
+		m._denominator = d;
+	}
+	else
+	{
+		std::cerr << "ERROR: Invalid Fraction!" << std::endl;
+	}
+
+	m.reduce();
 	return ist;
 }
 
