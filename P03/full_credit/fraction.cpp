@@ -25,6 +25,7 @@ Fraction Fraction::operator+(Fraction& rhs)
 	Fraction sum;
 	sum._numerator = (_numerator * rhs._denominator) + (_denominator * rhs._numerator);
 	sum._denominator = _denominator * rhs._denominator;
+	sum.reduce();
 	return sum;
 }
 
@@ -33,6 +34,7 @@ Fraction Fraction::operator-(Fraction& rhs)
 	Fraction difference;
 	difference._numerator = (_numerator * rhs._denominator) - (_denominator * rhs._numerator);
 	difference._denominator = _denominator * rhs._denominator;
+	difference.reduce();
 	return difference;
 }
 
@@ -41,6 +43,7 @@ Fraction Fraction::operator*(Fraction& rhs)
 	Fraction product;
 	product._numerator = _numerator * rhs._numerator;
 	product._denominator = _denominator * rhs._denominator;
+	product.reduce();
 	return product;
 }
 
@@ -49,6 +52,7 @@ Fraction Fraction::operator/(Fraction& rhs)
 	Fraction quotient;
 	quotient._numerator = _numerator * rhs._denominator;
 	quotient._denominator = _denominator * rhs._numerator;
+	quotient.reduce();
 	return quotient;
 }
 
