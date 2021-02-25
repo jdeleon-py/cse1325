@@ -38,7 +38,6 @@ std::vector<std::string> Deck::options()
 	return _options;
 }
 
-
 Card& Deck::deal()
 {
 	/*
