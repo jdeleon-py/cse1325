@@ -22,11 +22,18 @@ Student& Parent::student(int index)
 	}
 	else
 	{
-		return *students[index];
+		return *(students.at(index));
 	}
 }
 
-std::string Parent::full_info()
+std::string Parent::full_info() const
 {
-	return  name + " (" + email + ") " + "students: ";
+	std::string info = Person::full_info() + " - Students: ";
+	std::string seperator;
+	for(auto s : students)
+	{
+		info += seperator + (s -> to_string());
+		seperator = ", ";
+	}
+	return info;
 }

@@ -14,7 +14,7 @@ public:
 	void add_parent(Parent& parent);
 	int num_parents();
 	Parent& parent(int index);
-	std::string full_info() override;
+	std::string full_info() const override;
 protected:
 	int grade;
 	std::vector<Parent*> parents;
