@@ -59,20 +59,26 @@ Mainwin::Mainwin()
 	display = Gtk::manage(new Gtk::Label{"Students", Gtk::ALIGN_CENTER});
 	vbox -> add(*display);
 
-	//display = Gtk::manage(new Gtk::Label{show_student_data(), Gtk::ALIGN_CENTER});
-	//vbox -> add(*display);
+	for(int i = 0; i < students.size(); ++i)
+	{
+		std::cout << i << ") " << students.at(i).full_info() << std::endl;
+		display = Gtk::manage(new Gtk::Label{students.at(i).full_info(), Gtk::ALIGN_CENTER});
+		vbox -> add(*display);
+	}
 
 	display = Gtk::manage(new Gtk::Label{"Parents", Gtk::ALIGN_CENTER});
 	vbox -> add(*display);
 
-	//display = Gtk::manage(new Gtk::Label{show_parent_data(), Gtk::ALIGN_CENTER});
-	//vbox -> add(*display);
+	for(int i = 0; i < parents.size(); ++i)
+	{
+		display = Gtk::manage(new Gtk::Label{parents.at(i).full_info(), Gtk::ALIGN_CENTER});
+		vbox -> add(*display);
+	}
 
 	vbox -> show_all();
 
 	on_new_school_click();
-	show_student_data();
-	show_parent_data();
+	show_data();
 }
 
 Mainwin::~Mainwin() {}
@@ -96,7 +102,7 @@ void Mainwin::on_new_student_click()
 	int student_grade = std::stoi(grade_log.get_text());
 
 	students.push_back(Student{student_name, student_email, student_grade});
-	show_student_data();
+	show_data();
 }
 
 void Mainwin::on_new_parent_click()
@@ -110,30 +116,14 @@ void Mainwin::on_new_parent_click()
 	std::string parent_email = email_log.get_text();
 
 	parents.push_back(Parent{parent_name, parent_email});
-	show_parent_data();
+	show_data();
 }
 
-void Mainwin::on_student_parent_click()
-{
-}
+void Mainwin::on_student_parent_click() {}
 
 void Mainwin::on_quit_click()
 {
 	close();
 }
 
-void Mainwin::show_student_data()
-{
-	for(int i = 0; i < students.size(); ++i)
-	{
-		std::cout << i << ") " << students.at(i).full_info() << std::endl;
-	}
-}
-
-void Mainwin::show_parent_data()
-{
-	for(int i = 0; i < parents.size(); ++i)
-	{
-		std::cout << i << ") " << parents.at(i).full_info() << std::endl;
-	}
-}
+void Mainwin::show_data() {}

@@ -20,8 +20,7 @@ protected:
 	void on_student_parent_click();
 	void on_quit_click();
 private:
-	void show_student_data();
-	void show_parent_data();
+	void show_data();
 
 	Gtk::Label *display;
 	std::vector<Student> students;
