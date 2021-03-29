@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <climits>
 #include <gtkmm.h>
 #include "parent.h"
 #include "student.h"
@@ -21,6 +22,9 @@ protected:
 	void on_quit_click();
 private:
 	void show_data();
+	int select_student();
+	int select_parent();
+	int select(std::string prompt, int max = INT_MAX, int min = 0);
 
 	Gtk::Label *display;
 	std::vector<Student> students;
