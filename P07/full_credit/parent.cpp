@@ -14,8 +14,44 @@ Parent::Parent(std::istream& ist)
 
 void Parent::save(std::ostream& ost)
 {
-	ost << name << std::endl;
-	ost << email << std::endl;
+	Person::save(ost);
+}
+
+void Parent::save_aggregates(std::ostream& ost)
+{
+	ost << email << '\n';
+	ost << students.size() << '\n';
+	for(Student* student: students)
+	{
+		ost << *student << '\n';
+	}
+}
+
+void Parent::load_aggregates(std::istream& ist, const std::map<std::string, Student*>& students)
+{
+	std::string email_check;
+	std::getline(ist, email_check);
+	if(email != email_check)
+	{
+		throw std::runtime_error{"load_aggregates: " + email_check + " vs " + email};
+	}
+
+	int size;
+	ist >> size; ist.ignore(32767, '\n');
+	if(size > 100)
+	{
+		throw std::runtime_error{"Aggregate students too big"};
+	}
+
+	while(size--)
+	{
+		std::getline(ist, email_check);
+		if(!ist)
+		{
+			throw std::runtime_error{"Input stream failed on parent aggregate load"};
+		}
+		add_student(*students.at(email));
+	}
 }
 
 void Parent::add_student(Student& student)

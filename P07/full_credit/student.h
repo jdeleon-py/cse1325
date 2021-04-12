@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <vector>
+#include <map>
 #include "person.h"
 
 class Parent;
@@ -13,7 +14,9 @@ public:
 	Student(std::string name, std::string email, int grade);
 	Student();
 	Student(std::istream& ist);
-	virtual void save(std::ostream& ost);
+	void save(std::ostream& ost) override;
+	void save_aggregates(std::ostream& ost);
+	void load_aggregates(std::istream& ist, const std::map<std::string, Parent*>& parents);
 	void add_parent(Parent& parent);
 	int num_parents();
 	Parent& parent(int index);

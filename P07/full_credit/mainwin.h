@@ -10,6 +10,11 @@
 #include "parent.h"
 #include "student.h"
 
+const std::string EXTENSION = "smart";
+const std::string FILE_PATTERN = "*." + EXTENSION;
+const std::string DEFAULT_FILENAME = "untitled." + EXTENSION;
+const std::string FILE_VERSION = "0.1";
+
 class Mainwin : public Gtk::Window
 {
 public:
@@ -33,8 +38,8 @@ private:
 
 	Gtk::Label *display;
 	std::string filename;
-	std::vector<Student> students;
-	std::vector<Parent> parents;
+	std::vector<Student*> students;
+	std::vector<Parent*> parents;
 };
 
 #endif

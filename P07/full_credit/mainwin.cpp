@@ -126,18 +126,74 @@ Mainwin::Mainwin()
 	on_new_school_click();
 }
 
-Mainwin::~Mainwin() {}
+Mainwin::~Mainwin()
+{
+	for(Student* s: students)
+	{
+		delete s;
+	}
+
+	for(Parent* p: parents)
+	{
+		delete p;
+	}
+}
 
 void Mainwin::on_new_school_click()
 {
+	for(Student* s: students)
+	{
+		delete s;
+	}
+
+	for(Parent* p: parents)
+	{
+		delete p;
+	}
 	students.clear();
 	parents.clear();
+	filename = DEFAULT_FILENAME;
 	show_data();
 }
 
 void Mainwin::on_save_click()
 {
-	on_save_as_click();
+	try
+	{
+		std::ofstream ofs{filename};
+
+		ofs << FILE_VERSION << '\n';
+
+		ofs << students.size() << '\n';
+		for(Student* student: students)
+		{
+			student -> save(ofs);
+		}
+
+		ofs << parents.size() << '\n';
+		for(Parent* parent: parents)
+		{
+			parent -> save(ofs);
+		}
+
+		for(Student* student: students)
+		{
+			student -> save_aggregates(ofs);
+		}
+		for(Parent* parent: parents)
+		{
+			parent -> save_aggregates(ofs);
+		}
+
+		if(!ofs)
+		{
+			throw std::runtime_error{"Error writing file"};
+		}
+	}
+	catch(std::exception& e)
+	{
+		Gtk::MessageDialog{*this, "Unable to save school"}.run();
+	}
 }
 
 void Mainwin::on_save_as_click()
@@ -148,7 +204,7 @@ void Mainwin::on_save_as_click()
 
 	auto filter_smart = Gtk::FileFilter::create();
 	filter_smart -> set_name("SMART files");
-	filter_smart -> add_pattern("*.smart");
+	filter_smart -> add_pattern(FILE_PATTERN);
 	dialog.add_filter(filter_smart);
 
 	auto filter_any = Gtk::FileFilter::create();
@@ -156,33 +212,17 @@ void Mainwin::on_save_as_click()
 	filter_any -> add_pattern("*");
 	dialog.add_filter(filter_any);
 
-	dialog.set_filename("untitled.smart");
+	dialog.set_filename(filename);
 
-	dialog.add_button("_Cancel", 0);
-	dialog.add_button("_Save", 1);
+	dialog.add_button("_Cancel", Gtk::RESPONSE_CANCEL);
+	dialog.add_button("_Save", Gtk::RESPONSE_OK);
 
 	int result = dialog.run();
 
-	if(result == 1)
+	if(result == Gtk::RESPONSE_OK)
 	{
-		try
-		{
-			std::ofstream ofs{dialog.get_filename()};
-			ofs << std::to_string(students.size()) << std::endl;
-			for(auto s : students)
-			{
-				s.save(ofs);
-			}
-			ofs << std::to_string(parents.size()) << std::endl;
-			for(auto p : parents)
-			{
-				p.save(ofs);
-			}
-		}
-		catch(std::exception& e)
-		{
-			Gtk::MessageDialog{*this, "Unable to save data"}.run();
-		}
+		filename = dialog.get_filename();
+		on_save_click();
 	}
 }
 
@@ -202,44 +242,65 @@ void Mainwin::on_open_click()
 	filter_any -> add_pattern("*");
 	dialog.add_filter(filter_any);
 
-	dialog.set_filename("untitled.smart");
+	dialog.set_filename(filename);
 
-	dialog.add_button("_Cancel", 0);
-	dialog.add_button("_Open", 1);
+	dialog.add_button("_Cancel", Gtk::RESPONSE_CANCEL);
+	dialog.add_button("_Open", Gtk::RESPONSE_OK);
 
 	int result = dialog.run();
 
-	if(result == 1)
+	if(result == Gtk::RESPONSE_OK)
 	{
 		try
 		{
+			std::ifstream ifs{dialog.get_filename()};
+
 			on_new_school_click();
 			show_data();
-			std::ifstream ifs{dialog.get_filename()};
-			std::string s, s_size, p_size;
-			int i = 0;
-			int j = 0;
+			filename = dialog.get_filename();
+
+			int size;
+			ifs >> size; ifs.ignore(32767, '\n');
+			while(size--)
+			{
+				students.push_back(new Student{ifs});
+			}
+
+			ifs >> size; ifs.ignore(32767, '\n');
+			while(size--)
+			{
+				parents.push_back(new Parent{ifs});
+			}
+
+			std::ostringstream oss;
+			std::map<std::string, Parent*> parent_aggregates;
+			for(Parent* p: parents)
+			{
+				oss.str("");
+				oss << *p;
+				parent_aggregates[oss.str()] = p;
+			}
+			for(Student* s: students)
+			{
+				s -> load_aggregates(ifs, parent_aggregates);
+			}
+
+			std::map<std::string, Student*> student_aggregates;
+			for(Student* s: students)
+			{
+				oss.str("");
+				oss << *s;
+				student_aggregates[oss.str()] = s;
+			}
+			for(Parent* p: parents)
+			{
+				p -> load_aggregates(ifs, student_aggregates);
+			}
 
 			if(!ifs)
 			{
 				throw std::runtime_error{"File contents bad"};
 			}
-
-			std::getline(ifs, s_size);
-			while(i < stoi(s_size))
-			{
-				std::getline(ifs, s);
-				students.push_back(Student{ifs});
-				++i;
-			}
-			//std::getline(ifs, p_size);
-			//while(j < stoi(p_size))
-			//{
-			//	std::getline(ifs, s);
-			//	parents.push_back(Parent{ifs});
-			//	++j;
-			//}
-			show_data();
 		}
 		catch(std::exception& e)
 		{
@@ -281,7 +342,7 @@ void Mainwin::on_new_student_click()
 			return;
 		}
 
-		students.push_back(Student{name_log.get_text(), email_log.get_text(), student_grade});
+		students.push_back(new Student{name_log.get_text(), email_log.get_text(), student_grade});
 	}
 	catch(std::exception& e)
 	{
@@ -314,7 +375,7 @@ void Mainwin::on_new_parent_click()
 			return;
 		}
 
-		parents.push_back(Parent{name_log.get_text(), email_log.get_text()});
+		parents.push_back(new Parent{name_log.get_text(), email_log.get_text()});
 	}
 	catch(std::exception& e)
 	{
@@ -339,8 +400,8 @@ void Mainwin::on_student_parent_click()
 			return;
 		}
 
-		students.at(student).add_parent(parents.at(parent));
-		parents.at(parent).add_student(students.at(student));
+		students.at(student) -> add_parent(*parents.at(parent));
+		parents.at(parent) -> add_student(*students.at(student));
 	}
 	catch(std::exception& e)
 	{
@@ -378,14 +439,14 @@ void Mainwin::show_data()
 
 	for(int i = 0; i < students.size(); ++i)
 	{
-		s += students.at(i).full_info() + '\n';
+		s += students.at(i) -> full_info() + '\n';
 	}
 
 	s += "    Parents\n\n";
 
 	for(int i = 0; i < parents.size(); ++i)
 	{
-		s += parents.at(i).full_info() + '\n';
+		s += parents.at(i) -> full_info() + '\n';
 	}
 
 	display -> set_markup(s);
@@ -396,7 +457,7 @@ int Mainwin::select_student()
 	std::string prompt = "Select Student\n\n";
 	for(int i = 0; i < students.size(); ++i)
 	{
-		prompt += std::to_string(i) + ") " + students[i].to_string() + '\n';
+		prompt += std::to_string(i) + ") " + students[i] -> to_string() + '\n';
 	}
 	return select(prompt, students.size() - 1);
 }
@@ -406,7 +467,7 @@ int Mainwin::select_parent()
 	std::string prompt = "Select Parent\n\n";
 	for(int i = 0; i < parents.size(); ++i)
 	{
-		prompt += std::to_string(i) + ") " + parents[i].to_string() + '\n';
+		prompt += std::to_string(i) + ") " + parents[i] -> to_string() + '\n';
 	}
 	return select(prompt, parents.size() - 1);
 }

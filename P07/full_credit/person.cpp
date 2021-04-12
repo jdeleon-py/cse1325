@@ -6,14 +6,13 @@ Person::Person() {}
 
 Person::Person(std::istream& ist)
 {
-	ist >> name >> email;
-	ist.ignore(32767, '\n');
+	std::getline(ist, name);
+	std::getline(ist, email);
 }
 
 void Person::save(std::ostream& ost)
 {
-	ost << name << std::endl;
-	ost << email << std::endl;
+	ost << name << '\n' << email << '\n';
 }
 
 std::string Person::to_string() const
