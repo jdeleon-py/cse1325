@@ -3,7 +3,7 @@
 
 Mainwin::Mainwin()
 {
-	set_default_size(400, 200);
+	set_default_size(800, 300);
 	set_title("SMART");
 
 	Gtk::Box *vbox = Gtk::manage(new Gtk::VBox);
@@ -65,6 +65,23 @@ Mainwin::Mainwin()
 	Gtk::MenuItem *menuitem_student_parent = Gtk::manage(new Gtk::MenuItem("_Student to Parent", true));
 	menuitem_student_parent -> signal_activate().connect([this] {this -> on_student_parent_click();});
 	relatemenu -> append(*menuitem_student_parent);
+
+	//VIEW (create menu and add to MENU)
+	Gtk::MenuItem *menuitem_view = Gtk::manage(new Gtk::MenuItem("_View", true));
+	menubar -> append(*menuitem_view);
+	Gtk::Menu *viewmenu = Gtk::manage(new Gtk::Menu());
+	menuitem_view -> set_submenu(*viewmenu);
+
+	//VIEW STUDENTS (append to VIEW menu)
+	Gtk::MenuItem *menuitem_view_students = Gtk::manage(new Gtk::MenuItem("_View Students", true));
+	menuitem_view_students -> signal_activate().connect([this] {this -> show_student_data();});
+	viewmenu -> append(*menuitem_view_students);
+
+	//VIEW PARENTS (append to VIEW menu)
+	Gtk::MenuItem *menuitem_view_parents = Gtk::manage(new Gtk::MenuItem("_View Parents", true));
+	menuitem_view_parents -> signal_activate().connect([this] {this -> show_parent_data();});
+	viewmenu -> append(*menuitem_view_parents);
+
 
 	//HELP (create menu and add to MENU)
 	Gtk::MenuItem *menuitem_help = Gtk::manage(new Gtk::MenuItem("_Help", true));
