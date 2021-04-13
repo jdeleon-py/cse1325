@@ -434,7 +434,7 @@ void Mainwin::on_student_parent_click()
 	show_student_data();
 }
 
-void on_new_course_click()
+void Mainwin::on_new_course_click()
 {
 	/*
 	try
@@ -469,9 +469,10 @@ void on_new_course_click()
 	}
 	show_course_data();
 	*/
+	std::cout << "Adds a new course" << std::endl;
 }
 
-void on_new_section_click()
+void Mainwin::on_new_section_click()
 {
 	/*
 	try
@@ -485,6 +486,7 @@ void on_new_section_click()
 		EntryDialog
 	}
 	*/
+	std::cout << "Adds a new section" << std::endl;
 }
 
 void Mainwin::on_about_click()
