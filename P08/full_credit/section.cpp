@@ -2,15 +2,15 @@
 
 Section::Section(Course course, Semester semester, int year) : course{course}, semester{semester}, year{year} {}
 
-Section::Section(std::istream& ist)
-{
+//Section::Section(std::istream& ist)
+//{
 	//ist >> course >> semester >> year;
 	//ist.ignore(32767, '\n');
 
 	//std::getline(ist, course);
 	//std::getline(ist, semester);
 	//std::getline(ist, year);
-}
+//}
 
 void Section::save(std::ostream& ost)
 {
