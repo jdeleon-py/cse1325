@@ -1,24 +1,21 @@
 #include "section.h"
 
-Section::Section(Course course, Semester semester, int year) : course{course}, semester{semester}, year{year} {}
+Section::Section(Course course, Semester semester, int year) : _course{course}, _semester{semester}, _year{year} {}
 
-//Section::Section(std::istream& ist)
-//{
-	//ist >> course >> semester >> year;
-	//ist.ignore(32767, '\n');
-
-	//std::getline(ist, course);
-	//std::getline(ist, semester);
-	//std::getline(ist, year);
-//}
+Section::Section(std::istream& ist) : _course{ist}
+{
+	_semester = load_semester(ist);
+	ist >> _year; ist.ignore(32767, '\n');
+}
 
 void Section::save(std::ostream& ost)
 {
-	ost << course << '\n' << semester << '\n' << std::to_string(year) << '\n';
+	_course.save(ost);
+	ost << _semester << '\n' << _year << '\n';
 }
 
 std::ostream& operator<<(std::ostream& ost, const Section& section)
 {
-	ost << section.course << " for " << section.semester << " " << std::to_string(section.year);
+	ost << section._course << " for " << section._semester << " " << section._year;
 	return ost;
 }

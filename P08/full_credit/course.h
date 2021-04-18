@@ -13,8 +13,8 @@ public:
 	void save(std::ostream& ost);
 	friend std::ostream& operator<<(std::ostream& ost, const Course& course);
 private:
-	Subject subject;
-	int grade;
+	Subject _subject;
+	int _grade;
 };
 
 #endif

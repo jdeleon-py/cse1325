@@ -9,7 +9,7 @@ std::string convert_to_string(Semester semester);
 
 std::ostream& operator<<(std::ostream& ost, const Semester& semester);
 
-void load_semester(std::istream& ist);
+Semester load_semester(std::istream& ist);
 
 #endif
 

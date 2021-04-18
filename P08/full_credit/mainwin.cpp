@@ -24,6 +24,21 @@ Mainwin::Mainwin()
 	menuitem_new_school -> signal_activate().connect([this] {this -> on_new_school_click();});
 	filemenu -> append(*menuitem_new_school);
 
+	//SAVE SCHOOL (append to FILE menu)
+	Gtk::MenuItem *menuitem_save_school = Gtk::manage(new Gtk::MenuItem("_Save", true));
+	menuitem_save_school -> signal_activate().connect([this] {this -> on_save_click();});
+	filemenu -> append(*menuitem_save_school);
+
+	//SAVE AS SCHOOL (append to FILE menu)
+	Gtk::MenuItem *menuitem_saveas_school = Gtk::manage(new Gtk::MenuItem("_Save As", true));
+	menuitem_saveas_school -> signal_activate().connect([this] {this -> on_save_as_click();});
+	filemenu -> append(*menuitem_saveas_school);
+
+	//OPEN SCHOOL (append to FILE menu)
+	Gtk::MenuItem *menuitem_open_school = Gtk::manage(new Gtk::MenuItem("_Open", true));
+	menuitem_open_school -> signal_activate().connect([this] {this -> on_open_click();});
+	filemenu -> append(*menuitem_open_school);
+
 	//QUIT (append to FILE Menu)
 	Gtk::MenuItem *menuitem_quit = Gtk::manage(new Gtk::MenuItem("_Quit", true));
 	menuitem_quit -> signal_activate().connect([this] {this -> on_quit_click();});
@@ -74,14 +89,23 @@ Mainwin::Mainwin()
 
 	//VIEW STUDENTS (append to VIEW menu)
 	Gtk::MenuItem *menuitem_view_students = Gtk::manage(new Gtk::MenuItem("_View Students", true));
-	menuitem_view_students -> signal_activate().connect([this] {this -> show_student_data();});
+	menuitem_view_students -> signal_activate().connect([this] {this -> show_data(View::STUDENTS);});
 	viewmenu -> append(*menuitem_view_students);
 
 	//VIEW PARENTS (append to VIEW menu)
 	Gtk::MenuItem *menuitem_view_parents = Gtk::manage(new Gtk::MenuItem("_View Parents", true));
-	menuitem_view_parents -> signal_activate().connect([this] {this -> show_parent_data();});
+	menuitem_view_parents -> signal_activate().connect([this] {this -> show_data(View::PARENTS);});
 	viewmenu -> append(*menuitem_view_parents);
 
+	//VIEW COURSES (append to VIEW menu)
+	Gtk::MenuItem *menuitem_view_courses = Gtk::manage(new Gtk::MenuItem("_View Courses", true));
+	menuitem_view_courses -> signal_activate().connect([this] {this -> show_data(View::COURSES);});
+	viewmenu -> append(*menuitem_view_courses);
+
+	//VIEW SECTIONS (append to VIEW menu)
+	Gtk::MenuItem *menuitem_view_sections = Gtk::manage(new Gtk::MenuItem("_View Sections", true));
+	menuitem_view_sections -> signal_activate().connect([this] {this -> show_data(View::SECTIONS);});
+	viewmenu -> append(*menuitem_view_sections);
 
 	//HELP (create menu and add to MENU)
 	Gtk::MenuItem *menuitem_help = Gtk::manage(new Gtk::MenuItem("_Help", true));
@@ -122,6 +146,9 @@ Mainwin::Mainwin()
 	save_as_school_button -> signal_clicked().connect([this] {this -> on_save_as_click();});
 	toolbar -> append(*save_as_school_button);
 
+	Gtk::SeparatorToolItem *sep1 = Gtk::manage(new Gtk::SeparatorToolItem());
+	toolbar -> append(*sep1);
+
 	//NEW STUDENT (TOOLBAR)
 	Gtk::Image* button_student_image = Gtk::manage(new Gtk::Image{"student.png"});
 	Gtk::ToolButton *new_student_button = Gtk::manage(new Gtk::ToolButton(*button_student_image));
@@ -142,6 +169,9 @@ Mainwin::Mainwin()
 	relate_button -> set_tooltip_markup("Relate a student to a parent");
 	relate_button -> signal_clicked().connect([this] {this -> on_student_parent_click();});
 	toolbar -> append(*relate_button);
+
+	Gtk::SeparatorToolItem *sep2 = Gtk::manage(new Gtk::SeparatorToolItem());
+	toolbar -> append(*sep2);
 
 	//NEW COURSE (TOOLBAR)
 	//Gtk::Image* button_course_image = Gtk::manage(new Gtk::Image{Gtk::Stock::SAVE_AS}); //replace with 'course.png'
@@ -169,32 +199,24 @@ Mainwin::Mainwin()
 
 Mainwin::~Mainwin()
 {
-	for(Student* s: students)
-	{
-		delete s;
-	}
-
-	for(Parent* p: parents)
-	{
-		delete p;
-	}
+	for(Student* s: students) delete s;
+	for(Parent* p: parents) delete p;
+	for(Course* c: courses) delete c;
+	for(Section* s: sections) delete s;
 }
 
 void Mainwin::on_new_school_click()
 {
-	for(Student* s: students)
-	{
-		delete s;
-	}
-
-	for(Parent* p: parents)
-	{
-		delete p;
-	}
+	for(Student* s: students) delete s;
+	for(Parent* p: parents) delete p;
+	for(Course* c: courses) delete c;
+	for(Section* s: sections) delete s;
 	students.clear();
 	parents.clear();
+	courses.clear();
+	sections.clear();
 	filename = DEFAULT_FILENAME;
-	show_student_data();
+	show_data(View::STUDENTS);
 }
 
 void Mainwin::on_save_click()
@@ -206,30 +228,19 @@ void Mainwin::on_save_click()
 		ofs << FILE_VERSION << '\n';
 
 		ofs << students.size() << '\n';
-		for(Student* student: students)
-		{
-			student -> save(ofs);
-		}
-
+		for(Student* student: students) student -> save(ofs);
 		ofs << parents.size() << '\n';
-		for(Parent* parent: parents)
-		{
-			parent -> save(ofs);
-		}
+		for(Parent* parent: parents) parent -> save(ofs);
 
-		for(Student* student: students)
-		{
-			student -> save_aggregates(ofs);
-		}
-		for(Parent* parent: parents)
-		{
-			parent -> save_aggregates(ofs);
-		}
+		for(Student* student: students) student -> save_aggregates(ofs);
+		for(Parent* parent: parents) parent -> save_aggregates(ofs);
 
-		if(!ofs)
-		{
-			throw std::runtime_error{"Error writing file"};
-		}
+		ofs << courses.size() << '\n';
+		for(Course* course: courses) course -> save(ofs);
+		ofs << sections.size() << '\n';
+		for(Section* section: sections) section -> save(ofs);
+
+		if(!ofs) throw std::runtime_error{"Error writing file"};
 	}
 	catch(std::exception& e)
 	{
@@ -297,21 +308,15 @@ void Mainwin::on_open_click()
 			std::ifstream ifs{dialog.get_filename()};
 
 			on_new_school_click();
-			show_student_data();
+			show_data(View::STUDENTS);
 			filename = dialog.get_filename();
 
 			int size;
 			ifs >> size; ifs.ignore(32767, '\n');
-			while(size--)
-			{
-				students.push_back(new Student{ifs});
-			}
+			while(size--) students.push_back(new Student{ifs});
 
 			ifs >> size; ifs.ignore(32767, '\n');
-			while(size--)
-			{
-				parents.push_back(new Parent{ifs});
-			}
+			while(size--) parents.push_back(new Parent{ifs});
 
 			std::ostringstream oss;
 			std::map<std::string, Parent*> parent_aggregates;
@@ -321,10 +326,7 @@ void Mainwin::on_open_click()
 				oss << *p;
 				parent_aggregates[oss.str()] = p;
 			}
-			for(Student* s: students)
-			{
-				s -> load_aggregates(ifs, parent_aggregates);
-			}
+			for(Student* s: students) s -> load_aggregates(ifs, parent_aggregates);
 
 			std::map<std::string, Student*> student_aggregates;
 			for(Student* s: students)
@@ -333,15 +335,9 @@ void Mainwin::on_open_click()
 				oss << *s;
 				student_aggregates[oss.str()] = s;
 			}
-			for(Parent* p: parents)
-			{
-				p -> load_aggregates(ifs, student_aggregates);
-			}
+			for(Parent* p: parents) p -> load_aggregates(ifs, student_aggregates);
 
-			if(!ifs)
-			{
-				throw std::runtime_error{"File contents bad"};
-			}
+			if(!ifs) throw std::runtime_error{"File contents bad"};
 		}
 		catch(std::exception& e)
 		{
@@ -355,33 +351,18 @@ void Mainwin::on_new_student_click()
 	try
 	{
 		EntryDialog name_log{*this, "<b><big>Student name?</big></b>", true};
-		if(name_log.run() == Gtk::RESPONSE_OK)
-		{
-			name_log.hide();
-		}
-		else
-		{
-			return;
-		}
+		if(name_log.run() == Gtk::RESPONSE_OK) name_log.hide();
+		else return;
 
 		EntryDialog email_log{*this, "<b><big>Student email?</big></b>", true};
-		if(email_log.run() == Gtk::RESPONSE_OK)
-		{
-			email_log.hide();
-		}
-		else
-		{
-			return;
-		}
+		if(email_log.run() == Gtk::RESPONSE_OK) email_log.hide();
+		else return;
 
 		EntryDialog grade_log{*this, "<b><big>Student grade?</big></b>", true};
 		grade_log.run();
 		int student_grade = std::stoi(grade_log.get_text());
 
-		if(student_grade < 1)
-		{
-			return;
-		}
+		if(student_grade < 1) return;
 
 		students.push_back(new Student{name_log.get_text(), email_log.get_text(), student_grade});
 	}
@@ -389,7 +370,7 @@ void Mainwin::on_new_student_click()
 	{
 		Gtk::MessageDialog{*this, "Invalid entry!" + std::string{e.what()}}.run();
 	}
-	show_student_data();
+	show_data(View::STUDENTS);
 }
 
 void Mainwin::on_new_parent_click()
@@ -397,24 +378,12 @@ void Mainwin::on_new_parent_click()
 	try
 	{
 		EntryDialog name_log{*this, "<b><big>Parent name?</big></b>", true};
-		if(name_log.run() == Gtk::RESPONSE_OK)
-		{
-			name_log.hide();
-		}
-		else
-		{
-			return;
-		}
+		if(name_log.run() == Gtk::RESPONSE_OK) name_log.hide();
+		else return;
 
 		EntryDialog email_log{*this, "<b><big>Parent email?</big></b>", true};
-		if(email_log.run() == Gtk::RESPONSE_OK)
-		{
-			email_log.hide();
-		}
-		else
-		{
-			return;
-		}
+		if(email_log.run() == Gtk::RESPONSE_OK) email_log.hide();
+		else return;
 
 		parents.push_back(new Parent{name_log.get_text(), email_log.get_text()});
 	}
@@ -422,7 +391,7 @@ void Mainwin::on_new_parent_click()
 	{
 		Gtk::MessageDialog{*this, e.what()}.run();
 	}
-	show_parent_data();
+	show_data(View::PARENTS);
 }
 
 void Mainwin::on_student_parent_click()
@@ -430,16 +399,10 @@ void Mainwin::on_student_parent_click()
 	try
 	{
 		int student = select_student();
-		if(student < 0)
-		{
-			return;
-		}
+		if(student < 0) return;
 
 		int parent = select_parent();
-		if(parent < 0)
-		{
-			return;
-		}
+		if(parent < 0) return;
 
 		students.at(student) -> add_parent(*parents.at(parent));
 		parents.at(parent) -> add_student(*students.at(student));
@@ -448,62 +411,82 @@ void Mainwin::on_student_parent_click()
 	{
 		Gtk::MessageDialog{*this, e.what()}.run();
 	}
-	show_student_data();
+	show_data(View::STUDENTS);
 }
 
 void Mainwin::on_new_course_click()
 {
-	/*
 	try
 	{
-		int c = select_subject();
-		if(c < 0)
+		std::string s = "Subject name?\n\n";
+		for(int i = 0; i < subjects_vector.size(); ++i)
 		{
-			return;
+			s += std::to_string(i) + ") " + subject_to_string.at(subjects_vector[i]) + '\n';
 		}
 
-		EntryDialog grade_log{*this, "<b><big>Grade (1-12)?</big></b>", true};
-		if(grade_log.run() == Gtk::RESPONSE_OK)
-		{
-			grade_log.hide();
-		}
-		else
-		{
-			return;
-		}
-		int g = std::stoi(grade_log.get_text());
+		EntryDialog ds{*this, s};
+		if(ds.run() == Gtk::RESPONSE_OK) ds.hide();
+		else return;
 
-		if((g < 1) || (g > 12))
-		{
-			return;
-		}
+		Subject subject = subjects_vector.at(std::stoi(ds.get_text()));
 
-		courses.push_back(new Course{courses[c], g});
+		EntryDialog grade{*this, "Grade (1-12)?"};
+		if(grade.run() == Gtk::RESPONSE_OK) grade.hide();
+		else return;
+
+		courses.push_back(new Course{subject, std::stoi(grade.get_text())});
 	}
 	catch(std::exception& e)
 	{
 		Gtk::MessageDialog{*this, e.what()}.run();
 	}
-	show_course_data();
-	*/
-	std::cout << "Adds a new course" << std::endl;
+	show_data(View::COURSES);
 }
 
 void Mainwin::on_new_section_click()
 {
-	/*
 	try
 	{
-		int s = select_course(s);
-		if(s < 0)
-		{
-			return;
-		}
+		Gtk::Dialog d{"Course", *this};
+		auto vbox = d.get_content_area();
 
-		EntryDialog
+		Gtk::ComboBoxText cbt_courses;
+		std::ostringstream oss;
+		for(auto c: courses)
+		{
+			oss.str("");
+			oss << *c;
+			cbt_courses.append(oss.str());
+		}
+		vbox -> pack_start(cbt_courses);
+
+		d.add_button("Cancel", 0);
+		d.add_button("Select", 1);
+		d.show_all();
+
+		if(d.run() != 1) return;
+
+		Course& course = *courses.at(cbt_courses.get_active_row_number());
+
+		EntryDialog m{*this, "Select Semester and Year", false, Gtk::MESSAGE_QUESTION, Gtk::BUTTONS_CANCEL};
+		m.add_button("Fall", 1);
+		m.add_button("Spring", 2);
+		m.add_button("Summer", 3);
+		m.set_text("2021");
+		m.show_all();
+		int r = m.run();
+		if(!r) return;
+
+		Semester semester = (r == 1) ? Semester::FALL : ((r == 2) ? Semester::SPRING : Semester::SUMMER);
+
+		int year = std::stoi(m.get_text());
+		sections.push_back(new Section{course, semester, year});
 	}
-	*/
-	std::cout << "Adds a new section" << std::endl;
+	catch(std::exception& e)
+	{
+		Gtk::MessageDialog{*this, e.what()}.run();
+	}
+	show_data(View::SECTIONS);
 }
 
 void Mainwin::on_about_click()
@@ -528,56 +511,51 @@ void Mainwin::on_quit_click()
 	close();
 }
 
-void Mainwin::show_student_data()
+void Mainwin::show_data(View view)
 {
-	std::string s;
-	s += "    Students\n\n";
+	static View current_view;
+	if(view != View::SAME) current_view = view;
 
-	for(int i = 0; i < students.size(); ++i)
+	std::ostringstream oss;
+
+	if(current_view == View::STUDENTS)
 	{
-		s += students.at(i) -> full_info() + '\n';
+		oss << "   <b><big>Students</big></b>\n\n";
+		for(int i = 0; i < students.size(); ++i)
+		{
+			oss << students.at(i) -> full_info() << '\n';
+		}
+	}
+	else if(current_view == View::PARENTS)
+	{
+		oss << "   <b><big>Parents</big></b>\n\n";
+		for(int i = 0; i < parents.size(); ++i)
+		{
+			oss << parents.at(i) -> full_info() << '\n';
+		}
+	}
+	else if(current_view == View::COURSES)
+	{
+		oss << "   <b><big>Courses</big></b>\n\n";
+		for(auto course: courses)
+		{
+			oss << *course << '\n';
+		}
+	}
+	else if(current_view == View::SECTIONS)
+	{
+		oss << "   <b><big>Sections</big></b>\n\n";
+		for(auto section: sections)
+		{
+			oss << *section << '\n';
+		}
+	}
+	else
+	{
+		current_view = View::STUDENTS;
 	}
 
-	display -> set_markup(s);
-}
-
-void Mainwin::show_parent_data()
-{
-	std::string s;
-	s += "    Parents\n\n";
-
-	for(int i = 0; i < parents.size(); ++i)
-	{
-		s += parents.at(i) -> full_info() + '\n';
-	}
-
-	display -> set_markup(s);
-}
-
-void Mainwin::show_course_data()
-{
-	std::string s;
-	s += "    Courses\n\n";
-
-	for(int i = 0; i < courses.size(); ++i)
-	{
-		//s += courses.at(i) + '\n';
-	}
-
-	display -> set_markup(s);
-}
-
-void Mainwin::show_section_data()
-{
-	std::string s;
-	s += "    Sections\n\n";
-
-	for(int i = 0; i < sections.size(); ++i)
-	{
-		//s += sections.at(i) + '\n';
-	}
-
-	display -> set_markup(s);
+	display -> set_markup(oss.str());
 }
 
 int Mainwin::select_student()
@@ -600,19 +578,6 @@ int Mainwin::select_parent()
 	return select(prompt, parents.size() - 1);
 }
 
-int Mainwin::select_subject()
-{
-	/*
-	std::string prompt = "Subject name?\n\n";
-	for(int i = 0; i < courses.size(); ++i)
-	{
-		prompt += std::to_string(i) + ") " + courses[i] -> to_string() + '\n';
-	}
-	return select(prompt, courses.size() - 1);
-	*/
-	return 1;
-}
-
 int Mainwin::select(std::string prompt, int max, int min)
 {
 	int selection = min - 1;
@@ -625,10 +590,7 @@ int Mainwin::select(std::string prompt, int max, int min)
 			if(response == Gtk::RESPONSE_OK)
 			{
 				selection = std::stoi(dialog.get_text());
-				if(min <= selection && selection <= max)
-				{
-					break;
-				}
+				if(min <= selection && selection <= max) break;
 				throw std::out_of_range{"Invalid selection"};
 			}
 			else

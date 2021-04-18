@@ -17,6 +17,8 @@ const std::string FILE_PATTERN = "*." + EXTENSION;
 const std::string DEFAULT_FILENAME = "untitled." + EXTENSION;
 const std::string FILE_VERSION = "0.1";
 
+enum class View{SAME, STUDENTS, PARENTS, COURSES, SECTIONS};
+
 class Mainwin : public Gtk::Window
 {
 public:
@@ -35,13 +37,13 @@ protected:
 	void on_about_click();
 	void on_quit_click();
 private:
-	void show_student_data();
-	void show_parent_data();
-	void show_course_data();
-	void show_section_data();
+	void show_data(View view = View::SAME);
+	//void show_student_data();
+	//void show_parent_data();
+	//void show_course_data();
+	//void show_section_data();
 	int select_student();
 	int select_parent();
-	int select_subject();
 	int select(std::string prompt, int max = INT_MAX, int min = 0);
 
 	Gtk::Label *display;

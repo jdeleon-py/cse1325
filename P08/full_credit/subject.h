@@ -2,13 +2,33 @@
 #define __SUBJECT_H
 
 #include <iostream>
+#include <vector>
+#include <map>
 
 enum class Subject{READING, WRITING, MATH, SCIENCE, HISTORY, ART};
 
-std::string convert_to_string(Subject subject);
+const std::vector<Subject> subjects_vector
+{
+	Subject::READING,
+	Subject::WRITING,
+	Subject::MATH,
+	Subject::SCIENCE,
+	Subject::HISTORY,
+	Subject::ART
+};
+
+const std::map<Subject, std::string> subject_to_string
+{
+	{Subject::READING, "Reading"},
+	{Subject::WRITING, "Writing"},
+	{Subject::MATH,    "Math"},
+	{Subject::SCIENCE, "Science"},
+	{Subject::HISTORY, "History"},
+	{Subject::ART,     "Art"}
+};
 
 std::ostream& operator<<(std::ostream& ost, const Subject& subject);
 
-void load_subject(std::istream& ist);
+Subject load_subject(std::istream& ist);
 
 #endif

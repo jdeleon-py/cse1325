@@ -1,24 +1,18 @@
 #include "subject.h"
 
-std::string convert_to_string(Subject subject)
-{
-	switch(subject)
-	{
-		case Subject::READING : return "Reading";
-		case Subject::WRITING : return "Writing";
-		case Subject::MATH    : return "Math";
-		case Subject::SCIENCE : return "Science";
-		case Subject::ART     : return "Art";
-	}
-	return "Unknown";
-}
-
 std::ostream& operator<<(std::ostream& ost, const Subject& subject)
 {
-	ost << convert_to_string(subject);
+	ost << subject_to_string.at(subject);
 	return ost;
 }
 
-void load_subject(std::istream& ist)
-{}
+Subject load_subject(std::istream& ist)
+{
+	std::string from_stream;
+	std::getline(ist, from_stream);
 
+	for(const auto& [subject, s] : subject_to_string)
+	{
+		if(s == from_stream) return subject;
+	}
+}

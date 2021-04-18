@@ -17,5 +17,13 @@ std::ostream& operator<<(std::ostream& ost, const Semester& semester)
 	return ost;
 }
 
-void load_semester(std::istream& ist)
-{}
+Semester load_semester(std::istream& ist)
+{
+	std::string s;
+	std::getline(ist, s);
+
+	if(s == "Fall")   return Semester::FALL;
+	if(s == "Spring") return Semester::SPRING;
+	if(s == "Summer") return Semester::SUMMER;
+	throw std::runtime_error{std::string{"Invalid semester: " + s}};
+}

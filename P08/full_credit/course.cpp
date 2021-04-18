@@ -1,23 +1,20 @@
 #include "course.h"
 
-Course::Course(Subject subject, int grade) : subject{subject}, grade{grade} {}
+Course::Course(Subject subject, int grade) : _subject{subject}, _grade{grade} {}
 
 Course::Course(std::istream& ist)
 {
-	//ist >> subject >> grade;
-	//ist.ignore(32767, '\n');
-
-	//std::getline(ist, subject);
-	//std::getline(ist, grade);
+	_subject = load_subject(ist);
+	ist >> _grade; ist.ignore(32767, '\n');
 }
 
 void Course::save(std::ostream& ost)
 {
-	ost << subject << '\n' << std::to_string(grade) << '\n';
+	ost << _subject << '\n' << _grade << '\n';
 }
 
 std::ostream& operator<<(std::ostream& ost, const Course& course)
 {
-	ost << course.subject << " (" << "grade " << std::to_string(course.grade) << ")";
+	ost << course._subject << " (grade " << course._grade << ")";
 	return ost;
 }
