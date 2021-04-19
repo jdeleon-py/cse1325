@@ -70,6 +70,11 @@ Mainwin::Mainwin()
 	menuitem_new_section -> signal_activate().connect([this] {this -> on_new_section_click();});
 	insertmenu -> append(*menuitem_new_section);
 
+	//NEW TEACHER (append to INSERT menu)
+	Gtk::MenuItem *menuitem_new_teacher = Gtk::manage(new Gtk::MenuItem("_New Teacher", true));
+	menuitem_new_teacher -> signal_activate().connect([this] {this -> on_new_teacher_click();});
+	insertmenu -> append(*menuitem_new_teacher);
+
 	//RELATE (create menu and add to MENU)
 	Gtk::MenuItem *menuitem_relate = Gtk::manage(new Gtk::MenuItem("_Relate", true));
 	menubar -> append(*menuitem_relate);
@@ -106,6 +111,11 @@ Mainwin::Mainwin()
 	Gtk::MenuItem *menuitem_view_sections = Gtk::manage(new Gtk::MenuItem("_View Sections", true));
 	menuitem_view_sections -> signal_activate().connect([this] {this -> show_data(View::SECTIONS);});
 	viewmenu -> append(*menuitem_view_sections);
+
+	//VIEW TEACHERS (append to VIEW menu)
+	Gtk::MenuItem *menuitem_view_teachers = Gtk::manage(new Gtk::MenuItem("_View Teachers", true));
+	menuitem_view_teachers -> signal_activate().connect([this] {this -> show_data(View::TEACHERS);});
+	viewmenu -> append(*menuitem_view_teachers);
 
 	//HELP (create menu and add to MENU)
 	Gtk::MenuItem *menuitem_help = Gtk::manage(new Gtk::MenuItem("_Help", true));
@@ -169,6 +179,13 @@ Mainwin::Mainwin()
 	relate_button -> set_tooltip_markup("Relate a student to a parent");
 	relate_button -> signal_clicked().connect([this] {this -> on_student_parent_click();});
 	toolbar -> append(*relate_button);
+
+	//NEW TEACHER (TOOLBAR)
+	//Gtk::Image* button_teacher_image = Gtk::manage(new Gtk::Image{"teacher.png"});
+	Gtk::ToolButton *teacher_button = Gtk::manage(new Gtk::ToolButton(Gtk::Stock::SAVE_AS));
+	teacher_button -> set_tooltip_markup("Add a new teacher");
+	teacher_button -> signal_clicked().connect([this] {this -> on_new_teacher_click();});
+	toolbar -> append(*teacher_button);
 
 	Gtk::SeparatorToolItem *sep2 = Gtk::manage(new Gtk::SeparatorToolItem());
 	toolbar -> append(*sep2);
@@ -235,6 +252,8 @@ void Mainwin::on_save_click()
 		for(Student* student: students) student -> save_aggregates(ofs);
 		for(Parent* parent: parents) parent -> save_aggregates(ofs);
 
+		ofs << teachers.size() << '\n';
+		for(Teacher* teacher: teachers) teacher -> save(ofs);
 		ofs << courses.size() << '\n';
 		for(Course* course: courses) course -> save(ofs);
 		ofs << sections.size() << '\n';
@@ -394,6 +413,27 @@ void Mainwin::on_new_parent_click()
 	show_data(View::PARENTS);
 }
 
+void Mainwin::on_new_teacher_click()
+{
+	try
+	{
+		EntryDialog name_log{*this, "<b><big>Teacher name?</big></b>", true};
+		if(name_log.run() == Gtk::RESPONSE_OK) name_log.hide();
+		else return;
+
+		EntryDialog email_log{*this, "<b><big>Teacher email?</big></b>", true};
+		if(email_log.run() == Gtk::RESPONSE_OK) email_log.hide();
+		else return;
+
+		teachers.push_back(new Teacher{name_log.get_text(), email_log.get_text()});
+	}
+	catch(std::exception& e)
+	{
+		Gtk::MessageDialog{*this, e.what()}.run();
+	}
+	show_data(View::TEACHERS);
+}
+
 void Mainwin::on_student_parent_click()
 {
 	try
@@ -479,8 +519,13 @@ void Mainwin::on_new_section_click()
 
 		Semester semester = (r == 1) ? Semester::FALL : ((r == 2) ? Semester::SPRING : Semester::SUMMER);
 
+		int teacher_index = select_teacher();
+		if(teacher_index < 0) return;
+
+		Teacher& teacher = *teachers.at(teacher_index);
+
 		int year = std::stoi(m.get_text());
-		sections.push_back(new Section{course, semester, year});
+		sections.push_back(new Section{course, semester, year, teacher});
 	}
 	catch(std::exception& e)
 	{
@@ -550,6 +595,14 @@ void Mainwin::show_data(View view)
 			oss << *section << '\n';
 		}
 	}
+	else if(current_view == View::TEACHERS)
+	{
+		oss << "   <b><big>Teachers</big></b>\n\n";
+		for(int i = 0; i < teachers.size(); ++i)
+		{
+			oss << teachers.at(i) -> full_info() << '\n';
+		}
+	}
 	else
 	{
 		current_view = View::STUDENTS;
@@ -576,6 +629,16 @@ int Mainwin::select_parent()
 		prompt += std::to_string(i) + ") " + parents[i] -> to_string() + '\n';
 	}
 	return select(prompt, parents.size() - 1);
+}
+
+int Mainwin::select_teacher()
+{
+	std::string prompt = "Select Teacher\n\n";
+	for(int i = 0; i < teachers.size(); ++i)
+	{
+		prompt += std::to_string(i) + ") " + teachers[i] -> to_string() + '\n';
+	}
+	return select(prompt, teachers.size() - 1);
 }
 
 int Mainwin::select(std::string prompt, int max, int min)

@@ -6,8 +6,8 @@ all: mainwin
 debug: CXXFLAGS += -g
 debug: mainwin
 
-mainwin: main.o mainwin.o entrydialog.o person.o student.o parent.o subject.o course.o semester.o section.o *.h
-	$(CXX) $(CXXFLAGS) main.o mainwin.o entrydialog.o person.o student.o parent.o subject.o course.o semester.o section.o $(GTKFLAGS) -o smart
+mainwin: main.o mainwin.o entrydialog.o person.o student.o parent.o teacher.o subject.o course.o semester.o section.o *.h
+	$(CXX) $(CXXFLAGS) main.o mainwin.o entrydialog.o person.o student.o parent.o teacher.o subject.o course.o semester.o section.o $(GTKFLAGS) -o smart
 
 main.o: main.cpp *.h
 	$(CXX) $(CXXFLAGS) -c main.cpp $(GTKFLAGS) -o main.o
@@ -26,6 +26,9 @@ student.o: student.cpp *.h
 
 parent.o: parent.cpp *.h
 	$(CXX) $(CXXFLAGS) -c parent.cpp -o parent.o
+
+teacher.o: teacher.cpp *.h
+	$(CXX) $(CXXFLAGS) -c teacher.cpp -o teacher.o
 
 subject.o: subject.cpp *.h
 	$(CXX) $(CXXFLAGS) -c subject.cpp -o subject.o

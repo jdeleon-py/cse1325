@@ -15,4 +15,5 @@ Subject load_subject(std::istream& ist)
 	{
 		if(s == from_stream) return subject;
 	}
+	throw std::runtime_error{std::string{"Invalid Subject: " + from_stream}};
 }
