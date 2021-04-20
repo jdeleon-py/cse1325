@@ -569,9 +569,15 @@ void Mainwin::on_new_section_click()
 	show_data(View::SECTIONS);
 }
 
-void Mainwin::on_new_transcript_click() {std::cout << "Sets up a new transcript!" << std::endl;}
+void Mainwin::on_new_transcript_click()
+{
+	std::cout << "Sets up a new transcript!" << std::endl;
+}
 
-void Mainwin::on_set_grade_click() {std::cout << "Sets a new grade!" << std::endl;}
+void Mainwin::on_set_grade_click()
+{
+	std::cout << "Sets a new grade!" << std::endl;
+}
 
 void Mainwin::on_about_click()
 {
