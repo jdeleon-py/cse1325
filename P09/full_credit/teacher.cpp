@@ -1,13 +1,9 @@
 #include "person.h"
 #include "teacher.h"
 
-Teacher::Teacher(std::string name, std::string email) : Person(name, email) {}
+//Teacher::Teacher(std::string name, std::string email) : Person(name, email) {}
 
-Teacher::Teacher(std::istream& ist)
-{
-	ist >> name >> email;
-	ist.ignore(32767, '\n');
-}
+Teacher::Teacher(std::istream& ist) : Person{ist} {}
 
 void Teacher::save(std::ostream& ost)
 {
@@ -16,5 +12,7 @@ void Teacher::save(std::ostream& ost)
 
 std::string Teacher::full_info() const
 {
-	return Person::full_info();
+	std::ostringstream oss;
+	oss << Person::full_info();
+	return oss.str();
 }

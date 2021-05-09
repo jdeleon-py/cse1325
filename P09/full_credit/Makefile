@@ -1,4 +1,4 @@
-CXXFLAGS += --std=c++17
+CXXFLAGS += -pthread --std=c++17
 GTKFLAGS = `/usr/bin/pkg-config gtkmm-3.0 --cflags --libs`
 
 all: mainwin

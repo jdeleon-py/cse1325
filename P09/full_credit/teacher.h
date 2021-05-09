@@ -3,13 +3,15 @@
 
 #include <iostream>
 #include <vector>
+#include <sstream>
 #include "person.h"
+
+class Section;
 
 class Teacher : public Person
 {
 public:
-	Teacher(std::string name, std::string email);
-	Teacher();
+	using Person::Person;
 	Teacher(std::istream& ist);
 	void save(std::ostream& ost) override;
 	std::string full_info() const override;

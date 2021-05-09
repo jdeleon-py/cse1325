@@ -21,10 +21,7 @@ void Parent::save_aggregates(std::ostream& ost)
 {
 	ost << email << '\n';
 	ost << students.size() << '\n';
-	for(Student* student: students)
-	{
-		ost << *student << '\n';
-	}
+	for(Student* student: students) ost << *student << '\n';
 }
 
 void Parent::load_aggregates(std::istream& ist, const std::map<std::string, Student*>& students)
@@ -56,9 +53,11 @@ void Parent::load_aggregates(std::istream& ist, const std::map<std::string, Stud
 
 void Parent::add_student(Student& student)
 {
+	for(Student* s : students) if(s == &student) return;
 	students.push_back(&student);
 }
 
+/*
 int Parent::num_students()
 {
 	return students.size();
@@ -75,6 +74,7 @@ Student& Parent::student(int index)
 		return *(students.at(index));
 	}
 }
+*/
 
 std::string Parent::full_info() const
 {

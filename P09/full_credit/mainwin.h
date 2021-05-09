@@ -6,6 +6,7 @@
 #include <string>
 #include <climits>
 #include <fstream>
+#include <sstream>
 #include <gtkmm.h>
 
 #include "parent.h"
@@ -14,11 +15,13 @@
 #include "section.h"
 #include "teacher.h"
 #include "transcript.h"
+#include "entrydialog.h"
+#include "comboboxcontainer.h"
 
 const std::string EXTENSION = "smart";
 const std::string FILE_PATTERN = "*." + EXTENSION;
 const std::string DEFAULT_FILENAME = "untitled." + EXTENSION;
-const std::string FILE_VERSION = "0.2";
+const std::string FILE_VERSION = "0.3";
 
 enum class View{SAME, STUDENTS, PARENTS, TEACHERS, COURSES, SECTIONS, TRANSCRIPTS};
 
@@ -46,7 +49,7 @@ private:
 	void show_data(View view = View::SAME);
 	int select_student();
 	int select_parent();
-	int select_teacher();
+	//int select_teacher();
 	int select(std::string prompt, int max = INT_MAX, int min = 0);
 
 	Gtk::Label *display;

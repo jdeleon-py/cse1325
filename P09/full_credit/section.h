@@ -6,10 +6,12 @@
 #include "semester.h"
 #include "teacher.h"
 
+class Teacher;
+
 class Section
 {
 public:
-	Section(Course course, Semester semester, int year, Teacher teacher);
+	Section(Course course, Semester semester, int year, Teacher& teacher);
 	Section();
 	Section(std::istream& ist);
 	void save(std::ostream& ost);
@@ -17,7 +19,7 @@ public:
 private:
 	Course _course;
 	Semester _semester;
-	Teacher _teacher;
+	Teacher* _teacher;
 	int _year;
 	int _max_students;
 };

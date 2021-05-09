@@ -1,5 +1,4 @@
 #include "mainwin.h"
-#include "entrydialog.h"
 
 Mainwin::Mainwin()
 {
@@ -287,12 +286,14 @@ void Mainwin::on_save_click()
 		for(Student* student: students) student -> save_aggregates(ofs);
 		for(Parent* parent: parents) parent -> save_aggregates(ofs);
 
-		ofs << teachers.size() << '\n';
-		for(Teacher* teacher: teachers) teacher -> save(ofs);
 		ofs << courses.size() << '\n';
 		for(Course* course: courses) course -> save(ofs);
 		ofs << sections.size() << '\n';
 		for(Section* section: sections) section -> save(ofs);
+		ofs << teachers.size() << '\n';
+		for(Teacher* teacher : teachers) teacher -> save(ofs);
+		ofs << transcripts.size() << '\n';
+		for(Transcript* transcript : transcripts) transcript -> save(ofs);
 
 		if(!ofs) throw std::runtime_error{"Error writing file"};
 	}
@@ -391,7 +392,20 @@ void Mainwin::on_open_click()
 			}
 			for(Parent* p: parents) p -> load_aggregates(ifs, student_aggregates);
 
+			ifs >> size; ifs.ignore(32767, '\n');
+			while(size--) courses.push_back(new Course{ifs});
+
+			ifs >> size; ifs.ignore(32767, '\n');
+			while(size--) sections.push_back(new Section{ifs});
+
+			ifs >> size; ifs.ignore(32767, '\n');
+			while(size--) teachers.push_back(new Teacher{ifs});
+
+			ifs >> size; ifs.ignore(32767, '\n');
+			while(size--) transcripts.push_back(new Transcript{ifs});
+
 			if(!ifs) throw std::runtime_error{"File contents bad"};
+			show_data();
 		}
 		catch(std::exception& e)
 		{
@@ -525,41 +539,35 @@ void Mainwin::on_new_section_click()
 		Gtk::Dialog d{"Course", *this};
 		auto vbox = d.get_content_area();
 
-		Gtk::ComboBoxText cbt_courses;
-		std::ostringstream oss;
-		for(auto c: courses)
-		{
-			oss.str("");
-			oss << *c;
-			cbt_courses.append(oss.str());
-		}
+		ComboBoxContainer<std::vector<Course*>> cbt_courses(courses, courses.size() - 1);
 		vbox -> pack_start(cbt_courses);
 
+		ComboBoxContainer<std::vector<Teacher*>> cbt_teachers(teachers, teachers.size() - 1);
+		vbox -> pack_start(cbt_teachers);
+
+		Gtk::HBox hbox;
+		Gtk::Label l_year("Year:");
+		Gtk::SpinButton sb_year;
+		sb_year.set_range(2020, 2100);
+		sb_year.set_increments(1, 25);
+		hbox.pack_start(l_year);
+		hbox.pack_start(sb_year);
+		vbox -> pack_start(hbox);
+
 		d.add_button("Cancel", 0);
-		d.add_button("Select", 1);
+		d.add_button("Fall", 1);
+		d.add_button("Spring", 2);
+		d.add_button("Summer", 3);
 		d.show_all();
 
-		if(d.run() != 1) return;
-
-		Course& course = *courses.at(cbt_courses.get_active_row_number());
-
-		EntryDialog m{*this, "Select Semester and Year", false, Gtk::MESSAGE_QUESTION, Gtk::BUTTONS_CANCEL};
-		m.add_button("Fall", 1);
-		m.add_button("Spring", 2);
-		m.add_button("Summer", 3);
-		m.set_text("2021");
-		m.show_all();
-		int r = m.run();
+		int r = d.run();
 		if(!r) return;
-
+		Course& course = *courses.at(cbt_courses.get_active_row_number());
+		Teacher& teacher = *teachers.at(cbt_teachers.get_active_row_number());
 		Semester semester = (r == 1) ? Semester::FALL : ((r == 2) ? Semester::SPRING : Semester::SUMMER);
 
-		int teacher_index = select_teacher();
-		if(teacher_index < 0) return;
+		int year = sb_year.get_value();
 
-		Teacher& teacher = *teachers.at(teacher_index);
-
-		int year = std::stoi(m.get_text());
 		sections.push_back(new Section{course, semester, year, teacher});
 	}
 	catch(std::exception& e)
@@ -571,12 +579,53 @@ void Mainwin::on_new_section_click()
 
 void Mainwin::on_new_transcript_click()
 {
-	std::cout << "Sets up a new transcript!" << std::endl;
+	Gtk::Dialog d{"Create Transcript", *this};
+	auto vbox = d.get_content_area();
+
+	ComboBoxContainer<std::vector<Student*>> cbt_students(students, students.size() - 1);
+	vbox -> pack_start(cbt_students);
+
+	ComboBoxContainer<std::vector<Section*>> cbt_sections(sections, sections.size() - 1);
+	vbox -> pack_start(cbt_sections);
+
+	d.add_button("Cancel", 0);
+	d.add_button("Create", 1);
+
+	d.show_all();
+	if(d.run() != 1) return;
+
+	Student& student = *students.at(cbt_students.get_active_row_number());
+	Section& section = *sections.at(cbt_sections.get_active_row_number());
+
+	show_data(View::TRANSCRIPTS);
 }
 
 void Mainwin::on_set_grade_click()
 {
-	std::cout << "Sets a new grade!" << std::endl;
+	Gtk::Dialog d{"Assign Grade", *this};
+	auto vbox = d.get_content_area();
+
+	ComboBoxContainer<std::vector<Transcript*>> cbt_transcripts(transcripts, transcripts.size() - 1);
+	vbox -> pack_start(cbt_transcripts);
+
+	d.add_button("Cancel", -1);
+	int index = 0;
+	for(Grade grade : grades_vector) d.add_button(grade_to_string.at(grade), index++);
+
+	d.show_all();
+	try
+	{
+		int result = d.run();
+		if(result < 0 || result >= grades_vector.size()) return;
+
+		Transcript& transcript = *transcripts.at(cbt_transcripts.get_active_row_number());
+		transcript.assign_grade(grades_vector.at(result));
+	}
+	catch(std::exception& e)
+	{
+		Gtk::MessageDialog{*this, "Invalid transcript selected"}.run();
+	}
+	show_data(View::TRANSCRIPTS);
 }
 
 void Mainwin::on_about_click()
@@ -683,7 +732,7 @@ int Mainwin::select_parent()
 	}
 	return select(prompt, parents.size() - 1);
 }
-
+/*
 int Mainwin::select_teacher()
 {
 	std::string prompt = "Select Teacher\n\n";
@@ -693,7 +742,7 @@ int Mainwin::select_teacher()
 	}
 	return select(prompt, teachers.size() - 1);
 }
-
+*/
 int Mainwin::select(std::string prompt, int max, int min)
 {
 	int selection = min - 1;
