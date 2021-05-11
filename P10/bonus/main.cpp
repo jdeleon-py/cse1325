@@ -2,6 +2,7 @@
 #include "solver.h"
 
 #include <iostream>
+#include <sstream>
 #include <fstream>
 #include <vector>
 
@@ -10,50 +11,45 @@
 #include <thread>
 #include <mutex>
 
-/*
-class Bobbin
-{
-public:
-	void solve_puzzle()
-	{
-		for(std::string word : puzzle)
-		{
-			_m.lock();
-			// Find each word in the current puzzle
-			// Instance a Solver, and use it to solve for the word
-			Solver solver{puzzle};
-			Solution s = solver.solve(word);
-			solutions.push_back(s);
-			_m.unlock();
-		}
-	}
-
-	Puzzle puzzle;
-	std::vector<Solution> solutions;
-private:
-	std::mutex _m;
-};
-*/
-
-std::mutex m;
-void solve_puzzle(Puzzle puzzle, std::string word, std::vector<Solution> solutions)
-{
-	m.lock();
-	Solver solver{puzzle};
-	Solution s = solver.solve(word);
-	solutions.push_back(s);
-	m.unlock();
-}
-
 int main(int argc, char* argv[])
 {
-	static const int NUM_THREADS = 4;
-	std::thread t[NUM_THREADS];
-	//Bobbin bobbin;
+	std::ostringstream oss_usage;
+	oss_usage << "usage: " << argv[0] << " threads puzzle [puzzle]..\n";
+	std::string usage = oss_usage.str();
+
+	if(argc < 3)
+	{
+		std::cerr << usage;
+		exit(-1);
+	}
+
+	// Extract parameter 1
+	std::string p1 = std::string(argv[1]);
+
+	// Check for help request
+	if(p1 == "-h" || p1 == "--help")
+	{
+		std::cerr << usage;
+		exit(0);
+	}
+
+	//Read number of threads
+	int NUM_THREADS;
+	try
+	{
+		NUM_THREADS = std::stoi(p1);
+	}
+	catch(std::exception& e)
+	{
+		std::cerr << "Unable to read number of threads from "
+			  << p1 << ": " << e.what() << '\n'
+			  << usage;
+		exit(-2);
+	}
 
 	// Load the puzzles
 	std::vector<Puzzle> puzzles;
-	for(int i = 1; i < argc; ++i)
+	for(int i = 2; i < argc; ++i)
 	{
 		try
 		{
@@ -63,27 +59,48 @@ int main(int argc, char* argv[])
 		}
 		catch(std::exception& e)
 		{
-			std::cerr << "Unable to open " << argv[i] << ": " << e.what() << std::endl;
+			std::cerr << "Unable to open " << argv[1] << ": "
+			  	  << e.what() << std::endl;
 		}
 	}
 
 	// Exit if one or more puzzles failed to load
-	if((argc-1) != puzzles.size()) exit(-1);
+	if((argc - 2) != puzzles.size()) exit(-3);
 
-	// ----- All data loaded -----
+	// --- ALL DATA LOADED ---
 
-	// Capture the solutions in a vector
 	std::vector<Solution> solutions;
 
-	for(Puzzle& puzzle: puzzles)
+	std::vector<std::thread*> threads;
+	std::mutex m;
+
+	int next_puzzle = 0;
+
+	for(int i = 0; i < NUM_THREADS; ++i)
 	{
-		for(std::string word : puzzle)
-		{
-			//for(int i = 0; i < NUM_THREADS; ++i) t[i] = std::thread{[&bobbin] {bobbin.solve_puzzle();}};
-			for(int i = 0; i < NUM_THREADS; ++i) t[i] = std::thread(solve_puzzle, puzzle, word, solutions);
-			for(int i = 0; i < NUM_THREADS; ++i) t[i].join();
-		}
+		threads.push_back(new std::thread{[&] {
+			while(true)
+			{
+				m.lock();
+				int p = next_puzzle++;
+				m.unlock();
+				if(p >= puzzles.size()) break;
+				Puzzle& puzzle = puzzles.at(p);
+				Solver solver{puzzle};
+				for(std::string word : puzzle)
+				{
+					Solution s = solver.solve(word);
+					m.lock();
+					solutions.push_back(s);
+					m.unlock();
+				}
+			}
+		}});
 	}
+
+	for(std::thread* t : threads) t -> join();
+
 	std::sort(solutions.begin(), solutions.end());
 	for(Solution& s : solutions) std::cout << s << std::endl;
 }
+
