@@ -5,19 +5,19 @@ This repository will detail my work and documentation for UTA's CSE 1325 (OOP) c
 
 The first three directories (P02, P03, P04, P10) will consist of stand-alone programs explaining key OOP concepts covered 
 early on in the course, consisting (but not limited to):
-	* P02/ -> Encapsulation
-	* P03/ -> Operator Overloading
-	* P04/ -> Aggregate/Composite Classes
-	* P05/ -> Threading
+* P02/ -> Encapsulation
+* P03/ -> Operator Overloading
+* P04/ -> Aggregate/Composite Classes
+* P05/ -> Threading
 
 The following directory, indexed as SMART, will be an accumulation of a single program, further covering some crucial 
 lessons pertaining to OOP while also examining the gtkmm library for GUI development. This directory will consist of the 
 following sub-directories, serving as benchmarks for the accumulating GUI product (as seen in SMART/P09/):
-	* P05/
-	* P06/
-	* P07/
-	* P08/
-	* P09/
+* P05/
+* P06/
+* P07/
+* P08/
+* P09/
 
 ### Notes
 For each project directory, a series of notes and considerations for the accompanying program will be documented, along 
