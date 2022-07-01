@@ -46,18 +46,24 @@ Fraction Fraction::operator/(const Fraction& rhs)
 
 void Fraction::reduce()
 {
-	int common_den;
+	int common_den = gcd(_num, _den);
+	_num = _num / common_den;
+	_den = _den / common_den;
 	if (_den < 0)
 	{
 		_num = -_num;
 		_den = -_den;
 	}
-	common_den = gcd(_num, _den);
-	_num = _num / common_den;
-	_den = _den / common_den;
 }
 
-int Fraction::compare(const Fraction& rhs) {}
+int Fraction::compare(const Fraction& rhs)
+{
+	int left = _num * rhs._den;
+	int right = _den * rhs._num;
+	if(left > right) {return 1;}
+	else if (left < right) {return -1;}
+	else {return 0;}
+}
 
 int gcd(int a, int b)
 {
@@ -67,8 +73,8 @@ int gcd(int a, int b)
 
 std::ostream& operator<<(std::ostream& ost, Fraction& m)
 {
-	if(m._den == 1) {ost << m._num << std::endl;}
-	else {ost << m._num << "/" << m._den << std::endl;}
+	if(m._den == 1) {ost << m._num;}
+	else {ost << m._num << "/" << m._den;}
 	return ost;
 }
 
@@ -85,10 +91,4 @@ std::istream& operator>>(std::istream& ist, Fraction& m)
 	}
 	m.reduce();
 	return ist;
-}
-
-bool operator!=(const Fraction& lhs, const Fraction& rhs)
-{
-	if((lhs._num != rhs._num) || (lhs._den != rhs._den)) {return true;}
-	else {return false;}
 }

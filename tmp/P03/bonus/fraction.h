@@ -14,16 +14,15 @@ class Fraction
 		Fraction operator*(const Fraction& rhs);
 		Fraction operator/(const Fraction& rhs);
 
-		inline bool operator==(const Fraction& rhs) {return compare(rhs) == 0;}
-		inline bool operator!=(const Fraction& rhs) {return compare(rhs) != 0;}
-		inline bool operator<(const Fraction& rhs) {return compare(rhs) == -1;}
-		inline bool operator<=(const Fraction& rhs) {return compare(rhs) <= 0;}
-		inline bool operator>(const Fraction& rhs) {return compare(rhs) == 1;}
-		inline bool operator>=(const Fraction& rhs) {return compare(rhs) >= 0;}
+		inline bool operator==(const Fraction& rhs) {return compare(rhs) ==  0;}
+		inline bool operator!=(const Fraction& rhs) {return compare(rhs) !=  0;}
+		inline bool operator< (const Fraction& rhs) {return compare(rhs) == -1;}
+		inline bool operator<=(const Fraction& rhs) {return compare(rhs) <=  0;}
+		inline bool operator> (const Fraction& rhs) {return compare(rhs) ==  1;}
+		inline bool operator>=(const Fraction& rhs) {return compare(rhs) >=  0;}
 
 		friend std::ostream& operator<<(std::ostream& ost, Fraction& m);
 		friend std::istream& operator>>(std::istream& ist, Fraction& m);
-		friend bool operator!=(const Fraction& lhs, const Fraction& rhs);
 	private:
 		int _num;
 		int _den;
