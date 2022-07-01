@@ -31,7 +31,10 @@ age can be translated into its "human-years" equivalent.
 * The human-lifespan is hardcoded into the method (or header file if you're ambitious enough) and is assumed to be 80 
 years.
 * The mathematical formula computing the Pet object's "human-equivalent" age is as follows:
-	* human_equivalent_age = (_age * human_lifespan) / type_lifespan;
+```cpp
+std::vector<double> lifespan = {15.0, 4.0, 12.0};
+return (_age * human_lifespan) / lifespan[_type];
+```
 * Note that the main function need not be modified. This proves the power and utility of OOP.
 
 ## Extreme Bonus Credit
