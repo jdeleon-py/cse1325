@@ -4,11 +4,17 @@ int main(void)
 {
 	Fraction frac1, frac2;
 
-	std::cout << "Enter two fractions: <n/d n/d>" << std::endl;
-	std::cin >> frac1 >> frac2;
+	std::cout << "Enter two fractions: <n/d <Enter> n/d>" << std::endl;
+	std::cin >> frac1;
+	std::cin >> frac2;
 
 	std::cout << "Fraction #1: " << frac1 << std::endl;
 	std::cout << "Fraction #2: " << frac2 << std::endl;
+
+	std::cout << std::endl;
+
+	/* Arithmetic Operators */
+	std::cout << "Arithmetic Operators" << std::endl;
 
 	Fraction frac1_neg = -frac1;
 	Fraction frac2_neg = -frac2;
@@ -26,4 +32,16 @@ int main(void)
 
 	Fraction frac_div = frac1 / frac2;
 	std::cout << "Division : " << frac_div << std::endl;
+
+	std::cout << std::endl;
+
+	/* Comparison Operators */
+	std::cout << "Comparison Operators" << std::endl;
+
+	if(frac1 == frac2) {std::cout << "Frac1 == Frac2" << std::endl;}
+	if(frac1 != frac2) {std::cout << "Frac1 != Frac2" << std::endl;}
+	if(frac1 <  frac2) {std::cout << "Frac1 <  Frac2" << std::endl;}
+	if(frac1 <= frac2) {std::cout << "Frac1 <= Frac2" << std::endl;}
+	if(frac1 >  frac2) {std::cout << "Frac1 >  Frac2" << std::endl;}
+	if(frac1 >= frac2) {std::cout << "Frac1 >= Frac2" << std::endl;}
 }

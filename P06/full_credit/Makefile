@@ -1,5 +1,6 @@
 CXXFLAGS += --std=c++17
-GTKFLAGS = `/usr/bin/pkg-config gtkmm-3.0 --cflags --libs`
+#GTKFLAGS = $(/usr/local/opt/gtkmm3/include gtkmm-3.0 --cflags --libs)
+GTKFLAGS = $(/usr/local/Cellar/gtkmm3/3.24.6/lib/pkgconfig gtkmm-3.0 --cflags --libs)
 
 all: mainwin
 

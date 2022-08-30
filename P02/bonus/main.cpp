@@ -4,12 +4,10 @@ int main(void)
 {
 	std::vector<Pet> pets
 	{
-		Pet{"Gorgonszola", 2, POSSUM},
-		Pet{"Ferbert", 17, HORSE},
-		Pet{"Templeton", 9, AXOLOTL},
-		Pet{"Chester", 1, PENGUIN},
-		Pet{"Giuseppe", 21, MONKEY}
+		Pet{"Beau", 4, DOG},
+		Pet{"P. Diddly", 2, OPPOSSUM},
+		Pet{"Gort", 7, CAPYBARA}
 	};
 
-	for(Pet p : pets) std::cout << p.output() << std::endl;
+	for(Pet p: pets) {std::cout << p.to_string() << std::endl;}
 }

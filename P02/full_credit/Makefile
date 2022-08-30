@@ -1,4 +1,6 @@
-CXXFLAGS = --std=c++17
+CXXFLAGS = --std=c++20
+
+all: pets
 
 pets: main.o pet.o *.h
 	$(CXX) $(CXXFLAGS) main.o pet.o -o pets
